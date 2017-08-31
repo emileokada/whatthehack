@@ -1,5 +1,10 @@
 AWSTemplateFormatVersion : '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
+Parameters:
+  DataLocation:
+    Type: String
+    Default: s3://data.juulia.com/whatthehack/data.json
+    Description: Data source
 Resources:
   BeerPlaces:
     Type: "AWS::Serverless::Function"
@@ -9,7 +14,7 @@ Resources:
       Policies: AmazonS3ReadOnlyAccess
       Environment:
         Variables:
-          TABLE_NAME: !Ref VotesTable
+          DATA_ON_S3: !Ref DataLocation
       Events:
         Vote:
           Type: Api

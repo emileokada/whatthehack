@@ -1,11 +1,39 @@
 import os
 import json
 import boto3
+import botocore
+import json
+import shutil
+import urllib
+import urllib.parse
+
+def filter_data(orig):
+    rtv = {}
+    for key in ['geometry/location/lat', 'geometry/location/lng', 'rating', 'name']:
+        x = orig
+        for k in key.split('/'):
+            x = x[k]
+        rtv[k] = x
+    return rtv
 
 def lambda_handler(event, context):
-    print(event)
     if event['httpMethod'] == 'GET':
-        return {'body': 'Hello world!'}
+        data_loc = os.getenv('DATA_ON_S3')
+        parsed_loc = urllib.parse.urlparse(data_loc)
+        filename = os.path.basename(parsed_loc.path)
+        local_path = os.path.join('/tmp', filename)
+        if not os.path.exists(local_path):
+            if parsed_loc.scheme == 's3':
+                session = boto3.session.Session()
+                config = botocore.client.Config(signature_version='s3v4')
+                s3 = session.client('s3', config=config)
+                s3.download_file(parsed_loc.netloc, parsed_loc.path, filename)
+            else:
+                shutil.copyfile(data_loc, local_path)
+        with open(local_path, 'r') as fd:
+            data = json.load(fd)
+        body = [filter_data(x) for x in data
+        return {'body': body}
     elif event['httpMethod'] == 'POST':
         try:
             body = json.loads(event['body'])
