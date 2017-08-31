@@ -6,6 +6,11 @@ import json
 import shutil
 import urllib
 import urllib.parse
+import logging
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 def filter_data(orig):
     rtv = {}
@@ -16,8 +21,8 @@ def filter_data(orig):
         rtv[k] = x
     return rtv
 
-def lambda_handler(event, context):
-    if event['httpMethod'] == 'GET':
+def lambda_handler(event=None, context=None):
+    if 'httpMethod' in event and event['httpMethod'] == 'GET':
         data_loc = os.getenv('DATA_ON_S3')
         parsed_loc = urllib.parse.urlparse(data_loc)
         filename = os.path.basename(parsed_loc.path)
@@ -34,21 +39,6 @@ def lambda_handler(event, context):
         with open(local_path, 'r') as fd:
             data = json.load(fd)
         body = [filter_data(x) for x in data]
-        return {'body': body}
-    elif event['httpMethod'] == 'POST':
-        try:
-            body = json.loads(event['body'])
-        except:
-            return {'statusCode': 400, 'body': 'malformed json input'}
-        if 'vote' not in body:
-            return {'statusCode': 400, 'body': 'missing vote in request body'}
-        if body['vote'] not in ['spaces', 'tabs']:
-            return {'statusCode': 400, 'body': 'vote value must be \'spaces\' or \'tabs\''}
-
-        resp = votes_table.update_item(
-            Key={'id': body['vote']},
-            UpdateExpression='ADD votes :incr',
-            ExpressionAttributeValues={':incr': 1},
-            ReturnValues='ALL_NEW'
-        )
-        return {'body': '{} now has {} votes'.format(body['vote'], resp['Attributes']['votes'])}
+        return {'body': body, 'statusCode': 200}
+    else:
+        return {'statusCode': 400}
