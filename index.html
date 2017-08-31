@@ -17,12 +17,13 @@
       }
     </style>
     <title>What The Hack Ølen Map v1</title>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
     <div id="map"></div>
     <script>
-      function initMap() {
-        // Styles a map in night mode.
+        function initMap() {
+        // Styles a map in retro mode.
         var map = new google.maps.Map(document.getElementById('map'), {
           center: { lat: 59.912426136308824, lng: 10.747780150512773 },
           zoom: 14,
@@ -318,7 +319,42 @@
               }
             ]
         });
-      }
+
+        $.getJSON("data/data.json", function(json_data) {
+            var infowindow = new google.maps.InfoWindow();
+            var icon = {
+                url: 'static/beer.png',
+                scaledSize: new google.maps.Size(32, 32), // scaled size
+                origin: new google.maps.Point(0,0), // origin
+                anchor: new google.maps.Point(0, 0) // anchor
+            };
+            $.each(json_data, function(key, data) {
+                var latLng = new google.maps.LatLng(data.geometry.location);
+
+
+                var marker = new google.maps.Marker({
+                    position: latLng,
+                    title: data.name,
+                    icon: icon
+                });
+                var contentString = '<div id="content">'+
+                  '<div id="siteNotice">'+
+                  '</div>'+
+                  '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
+                  '<div id="bodyContent">'+
+                  '<p>' + data.vicinity + '</p>'+
+                  '</div>'+
+                  '</div>';
+                marker.setMap(map);
+                marker.addListener('mouseover', function() {
+                    infowindow.setContent(contentString);
+                    infowindow.open(map, marker);
+                });
+          });
+        });
+    }
+
+
 
     </script>
 
