@@ -9,6 +9,12 @@ def format_int(n):
     l = len(s)
     return "0"*(11-l)+s
 
+def add_zero(n):
+    s = str(np.int(n))
+    l = len(s)
+    return "0"*(2-l)+s
+    
+
 def get_customer_info(cust_id):
     url = "https://dnbapistore.com/hackathon/customers/1.0/customer/" + format_int(cust_id)
     r = requests.get(url,headers=headers)
@@ -49,3 +55,18 @@ def create_account(custID,account_name):
     r = requests.post(url,json=data,headers=headers)
     return r
 
+def make_transaction(debit_acc,credit_acc):
+    url = 'https://dnbapistore.com/hackathon/payments/1.0/payment'
+    amount = 50 + 100*np.random.rand()
+    day = np.random.choice(28)+1
+    month= np.random.choice(12)+1
+    year = np.random.choice(2)+2016
+    data = {
+        "debitAccountNumber": debit_acc, 
+        "creditAccountNumber": credit_acc,
+        "message": "Great beer",
+        "amount": str(amount),
+        "paymentDate": str(year) + add_zero(month) + add_zero(day)
+    }
+    r = requests.post(url,json=data,headers=headers)
+    return r

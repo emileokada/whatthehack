@@ -14,12 +14,15 @@ google_url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 
 key = 'AIzaSyCLY-MK8V2RS9KwZOUqakpUBYxzmHVGzDg'
 
+with open("../data/data_old.json") as f:
+    old_pubs = json.load(f)
+
 pubs = []
 
-for loc in key_locations:
+for loc in key_locations[:1]:
     data = {
         'location':loc,
-        'radius':1000,
+        'radius':500,
         'type':['bar','pub'],
         'hasNextPage':'true',
         'nextPage()':'true',
@@ -37,24 +40,23 @@ for loc in key_locations:
         else:
             break
 
-unique_pubs = []
-unique_names = []
+new_pubs = []
+unique_names = [pub['name'] for pub in old_pubs]
 
 for pub in pubs:
     if pub['name'] not in unique_names:
-        unique_pubs.append(pub)
+        new_pubs.append(pub)
         unique_names.append(pub['name'])
 
-print("Number of pubs found: %s"%len(unique_pubs))
-number_of_pubs = len(unique_pubs)
-custIDs = np.random.choice(range(10**10,10**11-1),number_of_pubs,replace=False)
-account_numbers = np.random.choice(range(10**10,10**11-1),number_of_pubs,replace=False)
-for i, pub in enumerate(unique_pubs):
-    pub['accountNumber'] = account_numbers[i]
-    pub['customerID'] = custIDs[i]
+all_pubs = old_pubs+new_pubs
+
+print("Number of new pubs: %s"%len(new_pubs))
+print("Total number of pubs: %s"%len(all_pubs))
+number_of_pubs = len(all_pubs)
+for i, pub in enumerate(all_pubs):
+    pub['customerID'] = i
 #list(set([pub['name'] for pub in pubs]))
 
 
 with open('data.json', 'w') as outfile:
-        json.dump(unique_pubs, outfile)
-
+        json.dump(all_pubs, outfile)
