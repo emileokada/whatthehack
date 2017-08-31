@@ -12,7 +12,7 @@ def filter_data(orig):
     for key in ['geometry/location/lat', 'geometry/location/lng', 'rating', 'name', 'vicinity']:
         x = orig
         for k in key.split('/'):
-            x = x[k]
+            x = x.get(k, None)
         rtv[k] = x
     return rtv
 
@@ -28,7 +28,7 @@ def lambda_handler(event, context):
                 session = boto3.session.Session()
                 config = botocore.client.Config(signature_version='s3v4')
                 s3 = session.client('s3', config=config)
-                s3.download_file(parsed_loc.netloc, parsed_loc.path[1:], filename)
+                s3.download_file(parsed_loc.netloc, parsed_loc.path[1:], local_path)
             else:
                 shutil.copyfile(data_loc, local_path)
         with open(local_path, 'r') as fd:
