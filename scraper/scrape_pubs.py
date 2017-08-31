@@ -58,5 +58,5 @@ for i, pub in enumerate(all_pubs):
 #list(set([pub['name'] for pub in pubs]))
 
 
-with open('data.json', 'w') as outfile:
+with open('../data/data.json', 'w') as outfile:
         json.dump(all_pubs, outfile)
