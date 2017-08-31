@@ -3,7 +3,7 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
   DataLocation:
     Type: String
-    Default: s3://data.juulia.com/whatthehack/data.json
+    Default: s3://ol.pyfive.com/data/orig.json
     Description: Data source
 Resources:
   BeerPlaces:

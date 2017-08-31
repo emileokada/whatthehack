@@ -9,7 +9,7 @@ import urllib.parse
 
 def filter_data(orig):
     rtv = {}
-    for key in ['geometry/location/lat', 'geometry/location/lng', 'rating', 'name']:
+    for key in ['geometry/location/lat', 'geometry/location/lng', 'rating', 'name', 'vicinity']:
         x = orig
         for k in key.split('/'):
             x = x[k]
@@ -24,15 +24,16 @@ def lambda_handler(event, context):
         local_path = os.path.join('/tmp', filename)
         if not os.path.exists(local_path):
             if parsed_loc.scheme == 's3':
+                print('Copying from S3')
                 session = boto3.session.Session()
                 config = botocore.client.Config(signature_version='s3v4')
                 s3 = session.client('s3', config=config)
-                s3.download_file(parsed_loc.netloc, parsed_loc.path, filename)
+                s3.download_file(parsed_loc.netloc, parsed_loc.path[1:], filename)
             else:
                 shutil.copyfile(data_loc, local_path)
         with open(local_path, 'r') as fd:
             data = json.load(fd)
-        body = [filter_data(x) for x in data
+        body = [filter_data(x) for x in data]
         return {'body': body}
     elif event['httpMethod'] == 'POST':
         try:
