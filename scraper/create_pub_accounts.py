@@ -8,9 +8,8 @@ with open("../data/data.json") as f:
     pubs = json.load(f)
 
 number_of_pubs = len(pubs)
-custIDs = np.random.choice(number_of_pubs,number_of_pubs,replace=False)
 for i, pub in enumerate(pubs):
-    pub["customerID"] = format_int(custIDs[i])
+    pub["customerID"] = format_int(i)
 #list(set([pub["name"] for pub in pubs]))
 
 for pub in pubs:
@@ -20,4 +19,4 @@ for pub in pubs:
     pub['accountNumber'] = response.json()['accountNumber']
 
 with open('./pub_account_data.json', 'w') as outfile:
-        json.dump(all_pubs, outfile)
+        json.dump(pubs, outfile)

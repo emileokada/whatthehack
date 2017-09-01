@@ -22,7 +22,7 @@ pubs = []
 for loc in key_locations:
     data = {
         'location':loc,
-        'radius':1000,
+        'radius':100,
         'type':['bar','pub'],
         'nextPage()':'true',
         'key':key
@@ -43,24 +43,19 @@ for loc in key_locations:
             pubs = pubs + json_response['results']
 
 new_pubs = []
-#unique_names = [pub['name'] for pub in old_pubs]
-unique_names = []
+unique_names = [pub['name'] for pub in old_pubs]
+#unique_names = []
 
 for pub in pubs:
     if pub['name'] not in unique_names:
         new_pubs.append(pub)
         unique_names.append(pub['name'])
 
-#all_pubs = old_pubs+new_pubs
-all_pubs = new_pubs
+all_pubs = old_pubs+new_pubs
+#all_pubs = new_pubs
 
 print("Number of new pubs: %s"%len(new_pubs))
 print("Total number of pubs: %s"%len(all_pubs))
-number_of_pubs = len(all_pubs)
-for i, pub in enumerate(all_pubs):
-    pub['customerID'] = i
-#list(set([pub['name'] for pub in pubs]))
-
 
 with open('../data/data.json', 'w') as outfile:
         json.dump(all_pubs, outfile)
