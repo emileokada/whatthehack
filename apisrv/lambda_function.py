@@ -27,6 +27,7 @@ def respond(res, err=None):
         'body': err if err else (json.dumps(res) if res else None),
         'headers': {
             'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
         },
         'isBase64Encoded': False
     }
