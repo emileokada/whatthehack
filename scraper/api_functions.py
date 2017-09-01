@@ -20,7 +20,7 @@ def get_customer_info(cust_id):
     r = requests.get(url,headers=headers)
     return r.json()
 
-def get_account_info(cust_id):
+def get_customer_account_info(cust_id):
     url = "https://dnbapistore.com/hackathon/accounts/1.0/account/customer/" + format_int(cust_id)
     r = requests.get(url,headers=headers)
     return r.json()
@@ -74,6 +74,12 @@ def delete_account(custID,account_number):
     url = "https://dnbapistore.com/hackathon/accounts/1.0/account/close"
     data = {"customerID":custID,"accountName":account_name}
     r = requests.patch(url,json=data,headers=headers)
+    return r
+
+def get_account_info(custID,account_number):
+    url = "https://dnbapistore.com/hackathon/accounts/1.0/account/details"
+    data = {"customerID":custID,"accountNumber":account_number}
+    r = requests.get(url,params=data,headers=headers)
     return r
 
 def check_pub_existsence(custID):
