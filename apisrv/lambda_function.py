@@ -21,10 +21,10 @@ def filter_data(orig):
         rtv[k] = x
     return rtv
 
-def respond(err, res=None):
+def respond(res, err=None):
     return {
         'statusCode': '400' if err else '200',
-        'body': err.message if err else json.dumps(res),
+        'body': err if err else (json.dumps(res) if res else None),
         'headers': {
             'Content-Type': 'application/json',
         },
@@ -51,4 +51,4 @@ def lambda_handler(event=None, context=None):
         body = [filter_data(x) for x in data]
         return respond(body)
     else:
-        return respond('Invalid method')
+        return respond(None, 'Invalid method')
