@@ -16,11 +16,6 @@ Resources:
         Variables:
           DATA_ON_S3: !Ref DataLocation
       Events:
-        Vote:
-          Type: Api
-          Properties:
-            Path: /
-            Method: post
         GetScores:
           Type: Api
           Properties:

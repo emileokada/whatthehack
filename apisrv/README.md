@@ -18,7 +18,9 @@
 
 5. Deploy it for real
 
-      env AWS_PROFILE=hack sam package --template-file template.yml --s3-bucket ol.pyfive.com --output-template-file package.yml
-      env AWS_PROFILE=hack aws cloudformation deploy --template-file package.yml --stack-name early001 --capabilities CAPABILITY_IAM
+      env AWS_PROFILE=hack sam package --template-file template.yml --s3-bucket ol.pyfive.com --output-template-file package.yml --s3-prefix cloudformation
+      env AWS_PROFILE=hack aws cloudformation deploy --template-file package.yml --capabilities CAPABILITY_IAM --stack-name <YOUR STACK NAME>
+
+6. Deployed at https://9xdcpd2hf5.execute-api.eu-west-1.amazonaws.com/Stage/
 
 Based on this [AWS blog](https://aws.amazon.com/blogs/aws/new-aws-sam-local-beta-build-and-test-serverless-applications-locally/)
