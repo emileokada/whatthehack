@@ -17,4 +17,7 @@ for pub in pubs:
     response = create_pub(pub)
     print(response.json())
     response = create_account(pub['customerID'],'Pub account')
-    print(response.json())
+    pub['accountNumber'] = response.json()['accountNumber']
+
+with open('./pub_account_data.json', 'w') as outfile:
+        json.dump(all_pubs, outfile)

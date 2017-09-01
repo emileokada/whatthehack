@@ -48,12 +48,40 @@ def create_pub(pub):
     r = requests.post(url,json=data,headers=headers)
     return r
 
+def patch_pub(pub):
+    url = "https://dnbapistore.com/hackathon/customers/1.0/customer"
+    data = {
+            "customerID": pub['customerID'], 
+            "address":{
+                "street":pub['vicinity'], 
+                "postalCode":"0000", 
+                "city":"Oslo", 
+                "country":"Norway"
+            },
+            "phoneNumber":"+4700000000", 
+            "email": pub['customerID'] + "@pub.beer"
+    }
+    r = requests.patch(url,json=data,headers=headers)
+    return r
+
 def create_account(custID,account_name):
     url = "https://dnbapistore.com/hackathon/accounts/1.0/account"
     data = {"customerID":custID,"accountName":account_name,"accountType":"Current","currency":"NOK"}
-    #data = {"customerID": "01011900123", "accountName": "New batmobile", "accountType": "Savings", "currency": "USD"}
     r = requests.post(url,json=data,headers=headers)
     return r
+
+def delete_account(custID,account_number):
+    url = "https://dnbapistore.com/hackathon/accounts/1.0/account/close"
+    data = {"customerID":custID,"accountName":account_name}
+    r = requests.patch(url,json=data,headers=headers)
+    return r
+
+def check_pub_existsence(custID):
+    url = "https://dnbapistore.com/hackathon/customers/1.0/customer/" + custID
+    r = requests.get(url,headers=headers)
+    #if r.json()['something']:
+    #    return True
+    return False
 
 def make_transaction(debit_acc,credit_acc):
     url = 'https://dnbapistore.com/hackathon/payments/1.0/payment'
@@ -69,4 +97,4 @@ def make_transaction(debit_acc,credit_acc):
         "paymentDate": str(year) + add_zero(month) + add_zero(day)
     }
     r = requests.post(url,json=data,headers=headers)
-    return r
+    return r.json()

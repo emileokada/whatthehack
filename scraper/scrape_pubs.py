@@ -19,36 +19,40 @@ with open("../data/data_old.json") as f:
 
 pubs = []
 
-for loc in key_locations[:1]:
+for loc in key_locations:
     data = {
         'location':loc,
-        'radius':500,
+        'radius':1000,
         'type':['bar','pub'],
-        'hasNextPage':'true',
         'nextPage()':'true',
         'key':key
     }
 
-    for i in range(3):
-        r = requests.get(google_url,params=data)
-        json_response = r.json()
+    r = requests.get(google_url,params=data)
+    json_response = r.json()
+    pubs = pubs + json_response['results']
 
-        pubs = pubs + json_response['results']
-        if 'next_page_token' in json_response:
-            next_page_token = json_response['next_page_token']
-            data['next_page_token'] = next_page_token
-        else:
-            break
+    while 'next_page_token' in json_response:
+        next_page_token = json_response['next_page_token']
+        data['pagetoken'] = next_page_token
+        json_response['status'] = 'INVALID_REQUEST'
+
+        while json_response['status'] == 'INVALID_REQUEST':
+            r = requests.get(google_url,params=data)
+            json_response = r.json()
+            pubs = pubs + json_response['results']
 
 new_pubs = []
-unique_names = [pub['name'] for pub in old_pubs]
+#unique_names = [pub['name'] for pub in old_pubs]
+unique_names = []
 
 for pub in pubs:
     if pub['name'] not in unique_names:
         new_pubs.append(pub)
         unique_names.append(pub['name'])
 
-all_pubs = old_pubs+new_pubs
+#all_pubs = old_pubs+new_pubs
+all_pubs = new_pubs
 
 print("Number of new pubs: %s"%len(new_pubs))
 print("Total number of pubs: %s"%len(all_pubs))
