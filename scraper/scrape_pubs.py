@@ -2,27 +2,29 @@ import requests
 import pandas as pd
 import numpy as np
 import json
+import os
 
 #Bjorvika, Aker brygge, Grunerlokka, Ullevaald, Majorstuen, etc.
 key_locations = ['59.907588,10.759842', '59.910156, 10.726016', 
         '59.922068, 10.759155', '59.950196, 10.735658', 
         '59.928533, 10.715530','59.925889, 10.744663',
         '59.940104, 10.727357', '59.932319, 10.783982',
-        '59.919281, 10.707815']
+        '59.919281, 10.707815','59.901957, 10.752893',
+        '59.903549, 10.771003','59.901843, 10.751861']
 
 google_url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 
 key = 'AIzaSyCLY-MK8V2RS9KwZOUqakpUBYxzmHVGzDg'
 
-with open("../data/data_old.json") as f:
+with open("../data/data.json",'r') as f:
     old_pubs = json.load(f)
 
 pubs = []
 
-for loc in key_locations:
+for loc in key_locations[-1:]:
     data = {
         'location':loc,
-        'radius':100,
+        'radius':500,
         'type':['bar','pub'],
         'nextPage()':'true',
         'key':key
@@ -41,6 +43,8 @@ for loc in key_locations:
             r = requests.get(google_url,params=data)
             json_response = r.json()
             pubs = pubs + json_response['results']
+
+#pubs = [pub for pub in pubs if 'Bar' in pub['name']]
 
 new_pubs = []
 unique_names = [pub['name'] for pub in old_pubs]
