@@ -21,6 +21,16 @@ def filter_data(orig):
         rtv[k] = x
     return rtv
 
+def respond(err, res=None):
+    return {
+        'statusCode': '400' if err else '200',
+        'body': err.message if err else json.dumps(res),
+        'headers': {
+            'Content-Type': 'application/json',
+        },
+        'isBase64Encoded': False
+    }
+
 def lambda_handler(event=None, context=None):
     if 'httpMethod' in event and event['httpMethod'] == 'GET':
         data_loc = os.getenv('DATA_ON_S3')
@@ -39,6 +49,6 @@ def lambda_handler(event=None, context=None):
         with open(local_path, 'r') as fd:
             data = json.load(fd)
         body = [filter_data(x) for x in data]
-        return {'body': body, 'statusCode': 200}
+        return respond(body)
     else:
-        return {'statusCode': 400}
+        return respond('Invalid method')
