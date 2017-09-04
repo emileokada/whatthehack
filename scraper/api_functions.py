@@ -2,7 +2,7 @@ import numpy as np
 import json
 import requests
 
-headers = {"Accept":"application/json","Authorization":"Bearer b045dcde-4253-3e0f-865f-144556eed318"}
+headers = {"Accept":"application/json","Authorization":"Bearer eaf16995-a77e-3654-a5a3-b29e985168e3"}
 
 def format_int(n):
     s = str(np.int(n))
@@ -13,7 +13,17 @@ def add_zero(n):
     s = str(np.int(n))
     l = len(s)
     return "0"*(2-l)+s
+
+def format_date(date):
+    year = str(date.year)
+    month = add_zero(date.month)
+    day = add_zero(date.day)
+    return year + "-" + month + "-" + day
     
+def softmax(scores):
+    scaled_scores = np.exp(scores - np.max(scores))
+    return scaled_scores / scaled_scores.sum()
+
 
 def get_customer_info(cust_id):
     url = "https://dnbapistore.com/hackathon/customers/1.0/customer/" + format_int(cust_id)
@@ -89,18 +99,41 @@ def check_pub_existsence(custID):
     #    return True
     return False
 
-def make_transaction(debit_acc,credit_acc):
+def make_transaction(debit_acc,credit_acc,amount,date):
     url = 'https://dnbapistore.com/hackathon/payments/1.0/payment'
-    amount = 50 + 100*np.random.rand()
-    day = np.random.choice(28)+1
-    month= np.random.choice(12)+1
-    year = np.random.choice(2)+2016
     data = {
         "debitAccountNumber": debit_acc, 
         "creditAccountNumber": credit_acc,
         "message": "Great beer",
-        "amount": str(amount),
-        "paymentDate": str(year) + add_zero(month) + add_zero(day)
+        "amount": amount,
+        "paymentDate": date
     }
-    r = requests.post(url,json=data,headers=headers)
+    r = requests.put(url,json=data,headers=headers)
+    return r.json()
+
+def get_transactions(customerID,accountNumber):
+    url = 'https://dnbapistore.com/hackathon/accounts/1.0/account'
+    data = {
+        "customerID": customerID,
+        "accountNumber": accountNumber,
+        "dateFrom": "01012016",
+        "dateTo": "01012018"
+    }
+    r = requests.get(url,params=data,headers=headers)
+    return r.json()
+
+def get_pub_transactions(pub):
+    url = 'https://dnbapistore.com/hackathon/accounts/1.0/account'
+    data = {
+        "customerID": pub["customerID"],
+        "accountNumber": pub["accountNumber"],
+        "dateFrom": "01012016",
+        "dateTo": "01012018"
+    }
+    r = requests.get(url,params=data,headers=headers)
+    return r.json()
+
+def get_transaction_info(transactionID):
+    url = "https://dnbapistore.com/hackathon/payments/1.0/payment/" + str(transactionID)
+    r = requests.get(url,headers=headers)
     return r.json()
