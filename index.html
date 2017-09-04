@@ -328,15 +328,21 @@
                 origin: new google.maps.Point(0,0), // origin
                 anchor: new google.maps.Point(0, 0) // anchor
             };
+
+            var heatMapData = []
+
             $.each(json_data, function(key, data) {
                 var latLng = new google.maps.LatLng(data.lat,data.lng);
 
+                heatMapData.push({location: latLng, weight: data.rating});
+               /*
 
                 var marker = new google.maps.Marker({
                     position: latLng,
                     title: data.name,
                     icon: icon
                 });
+
                 var contentString = '<div id="content">'+
                   '<div id="siteNotice">'+
                   '</div>'+
@@ -350,7 +356,14 @@
                     infowindow.setContent(contentString);
                     infowindow.open(map, marker);
                 });
-          });
+                */
+            });
+
+            var heatmap = new google.maps.visualization.HeatmapLayer({
+                  data: heatMapData,
+                  radius: 30
+            });
+            heatmap.setMap(map);
         });
     }
 
@@ -359,7 +372,7 @@
     </script>
 
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzf03BUdj6dVlYBLRpntaJd4FIzu2ECTk&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzf03BUdj6dVlYBLRpntaJd4FIzu2ECTk&callback=initMap&libraries=visualization">
     </script>
 </body>
 </html>
