@@ -104,7 +104,6 @@ input[type=radio]:checked + label{
 
 
     <script>
-        var heatMapData = []
         function initMap() {
         // Styles a map in retro mode.
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -412,12 +411,14 @@ input[type=radio]:checked + label{
                 anchor: new google.maps.Point(0, 0) // anchor
             };
 
+            var heatMapDataRev = []
+            var heatMapDataPop = []
 
             $.each(json_data, function(key, data) {
                 var latLng = new google.maps.LatLng(data.lat,data.lng);
 
-                console.log(data)
-                heatMapData.push({location: latLng, weight: data.rating});
+                heatMapDataRev.push({location: latLng, weight: data.revenue});
+                heatMapDataPop.push({location: latLng, weight: data.popularity});
 
                 /*
                 var marker = new google.maps.Marker({
@@ -440,21 +441,26 @@ input[type=radio]:checked + label{
                 */
             });
 
-            var heatmap = new google.maps.visualization.HeatmapLayer({
-                  data: heatMapData,
+            var heatmaprev = new google.maps.visualization.HeatmapLayer({
+                  data: heatMapDataRev,
                   radius: 30
             });
-            heatmap.setMap(map);
+
+            var heatmappop = new google.maps.visualization.HeatmapLayer({
+                  data: heatMapDataPop,
+                  radius: 30
+            });
+
+            heatmaprev.setMap(map);
 
             $( "#rev" ).click(function() {
-                heatMapData = [new google.maps.LatLng(59.907588,10.759842)];
-                heatmap.setMap(null);
-                heatmap = null;
-                heatmap = new google.maps.visualization.HeatmapLayer({
-                      data: heatMapData,
-                      radius: 30
-                });
-                heatmap.setMap(map);
+                heatmappop.setMap(null);
+                heatmaprev.setMap(map);
+            });
+
+            $( "#pop" ).click(function() {
+                heatmaprev.setMap(null);
+                heatmappop.setMap(map);
             });
         });
     }
