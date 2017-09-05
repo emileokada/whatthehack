@@ -14,7 +14,7 @@ logger.setLevel(logging.DEBUG)
 
 def filter_data(orig):
     rtv = {}
-    for key in ['geometry/location/lat', 'geometry/location/lng', 'revenue', 'popularity', 'name', 'vicinity']:
+    for key in ['geometry/location/lat', 'geometry/location/lng', 'revenue', 'popularity', 'hipness', 'name', 'vicinity', 'photos/photo_reference']:
         x = orig
         for k in key.split('/'):
             x = x.get(k, None)

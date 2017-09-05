@@ -20,11 +20,10 @@
 
         #info_window {
             position: absolute;
-            top: 50px;
+            top: 80px;
             right: 15px;
             font-family: 'Open Sans Condensed', arial, sans;
-            width: 246px;
-            padding: 30px;
+            width: 315px;
             background: #FFFFFF;
             margin: 0px auto;
             box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.22);
@@ -40,13 +39,18 @@
             font-size: 18px;
             font-weight: 100;
             padding: 20px;
-            margin: -30px -30px 30px -30px;
+            margin: -30px 0px 0px 0px;
         }
+
+        #bodyContent {
+            padding-left: 10px;
+        }
+
 
         #options{
             position: absolute;
             top: -13px;
-            right: 30px;
+            right: -20px;
             font-family: 'Open Sans Condensed', arial, sans;
             width: 350px;
             background: transparent;
@@ -67,9 +71,10 @@
             background: white;
             border: solid 5 gray;
         }
-input[type=radio]:checked + label{
-            color: white;
-            background: gray;
+
+        .clicked {
+            color: white!important;
+            background: gray!important;
         }
 
         .radio-group label + input[type=radio] + label {
@@ -78,7 +83,7 @@ input[type=radio]:checked + label{
         .radio-group {
             border: solid 5 gray;
             display: inline-block;
-            margin: 20px;
+            margin: 20px 0px 0px 0px;
             border-radius: 10px;
             overflow: hidden;
         }
@@ -93,15 +98,14 @@ input[type=radio]:checked + label{
     <div id="options">
         <form>
             <div class="radio-group">
-                <input type="radio" id="markers" name="selector"><label id="marks" for="option-one">Markers</label>
+                <input type="radio" id="markers" name="selector"><label id="marks" class="clicked" for="option-one">Markers</label>
                 <input type="radio" id="revenue" name="selector"><label id="rev" for="option-two">Revenue</label>
-                <input type="radio" id="popularity" name="selector"><label id="pop" for="option-three">Popularity</label>
+                <input type="radio" id="popularity" name="selector"><label id="pop" for="option-three">Hipness</label>
             </div>
         </form>
     </div>
 
     <div id="info_window">
-        <h2>Name here</h2>
     </div>
 
 
@@ -425,10 +429,9 @@ input[type=radio]:checked + label{
 
             $.each(json_data, function(key, data) {
                 var latLng = new google.maps.LatLng(data.lat,data.lng);
-                console.log(data.revenue);
 
                 heatMapDataRev.push({location: latLng, weight: data.revenue});
-                heatMapDataPop.push({location: latLng, weight: data.popularity});
+                heatMapDataPop.push({location: latLng, weight: data.hipness});
 
                 var marker = new google.maps.Marker({
                     position: latLng,
@@ -438,45 +441,61 @@ input[type=radio]:checked + label{
 
                 markers.push(marker);
 
-                var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
-                  '<div id="bodyContent">'+
-                  '<p>' + data.vicinity + '</p>'+
-                  '</div>'+
-                  '</div>';
                 marker.setMap(map);
                 marker.addListener('click', function() {
-                    //infowindow.setContent(contentString);
-                    //infowindow.open(map, marker);
+                    if (data.photo_reference !== null) {
+                      img_url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + data.photo_reference + "&key=AIzaSyCLY-MK8V2RS9KwZOUqakpUBYxzmHVGzDg";
+                    } else {
+                        img_url = "http://www.menshealth.com/sites/menshealth.com/files/beer-main_0.jpg"
+                    }
+                    var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
+                      '<div id="img_cont" style="max-height:200px;overflow:hidden;">'+
+                      '<img src="' + img_url + '" style="width:100%;height:auto;">'+
+                      '</div>'+
+                      '<div id="bodyContent">'+
+                      '<p><span style="font-weight: bold;">Address: </span>' + data.vicinity + '</p>'+
+                      '<p><span style="font-weight: bold;">Average beer price: </span>' + Math.round(data.revenue/data.popularity) + 'NOK</p>'+
+                      '</div>'+
+                      '</div>';
                     $('#info_window').html(contentString)
                 });
             });
 
             var heatmaprev = new google.maps.visualization.HeatmapLayer({
                   data: heatMapDataRev,
-                  radius: 50
+                  radius: 30
             });
 
             var heatmappop = new google.maps.visualization.HeatmapLayer({
                   data: heatMapDataPop,
-                  radius: 50
+                  radius: 30
             });
 
             $( "#marks" ).click(function() {
                 heatmappop.setMap(null);
                 heatmaprev.setMap(null);
                 setMapOnAll(map);
+                $("#rev").removeClass('clicked')
+                $("#pop").removeClass('clicked')
+                $("#marks").addClass('clicked')
             });
 
             $( "#rev" ).click(function() {
                 setMapOnAll(null);
                 heatmappop.setMap(null);
                 heatmaprev.setMap(map);
+                $("#rev").addClass('clicked')
+                $("#pop").removeClass('clicked')
+                $("#marks").removeClass('clicked')
             });
 
             $( "#pop" ).click(function() {
                 setMapOnAll(null);
                 heatmaprev.setMap(null);
                 heatmappop.setMap(map);
+                $("#rev").removeClass('clicked')
+                $("#pop").addClass('clicked')
+                $("#marks").removeClass('clicked')
             });
         });
     }

@@ -4,7 +4,7 @@ import requests
 from api_functions import format_int, create_account, create_pub, get_account_info, get_customer_info
 
 
-with open("../data/data.json") as f:
+with open("../../data/data.json") as f:
     pubs = json.load(f)
 
 number_of_pubs = len(pubs)
@@ -18,5 +18,5 @@ for pub in pubs:
     response = create_account(pub['customerID'],'Pub account')
     pub['accountNumber'] = response.json()['accountNumber']
 
-with open('./pub_account_data.json', 'w') as outfile:
+with open('../data/pub_account_data.json', 'w') as outfile:
         json.dump(pubs, outfile)

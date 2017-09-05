@@ -16,7 +16,7 @@ google_url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 
 key = 'AIzaSyCLY-MK8V2RS9KwZOUqakpUBYxzmHVGzDg'
 
-with open("../data/data.json",'r') as f:
+with open("../../data/data.json",'r') as f:
     old_pubs = json.load(f)
 
 pubs = []
