@@ -3,25 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
     <style>
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
+        #map {
+            height: 100%;
+        }
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #info_window {
+            position: absolute;
+            top: 50px;
+            right: 15px;
+            font-family: 'Open Sans Condensed', arial, sans;
+            width: 246px;
+            padding: 30px;
+            background: #FFFFFF;
+            margin: 0px auto;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.22);
+            -moz-box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.22);
+            -webkit-box-shadow:  0px 0px 15px rgba(0, 0, 0, 0.22);
+        }
+
+        #info_window h2{
+            background: #4D4D4D;
+            text-transform: uppercase;
+            font-family: 'Open Sans Condensed', sans-serif;
+            color: #797979;
+            font-size: 18px;
+            font-weight: 100;
+            padding: 20px;
+            margin: -30px -30px 30px -30px;
+        }
+
+        #options{
+            position: absolute;
+            top: -13px;
+            right: 30px;
+            font-family: 'Open Sans Condensed', arial, sans;
+            width: 250px;
+            background: transparent;
+        }
+
+        input[type=radio] {
+            position: absolute;
+            visibility: hidden;
+            display: none;
+        }
+
+        label {
+            color: black;
+            display: inline-block;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 5px 20px;
+            background: white;
+            border: solid 5 gray;
+        }
+input[type=radio]:checked + label{
+            color: white;
+            background: gray;
+        }
+
+        label + input[type=radio] + label {
+            border-left: solid 5 gray;
+        }
+        .radio-group {
+            border: solid 5 gray;
+            display: inline-block;
+            margin: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
     </style>
     <title>What The Hack Ølen Map v1</title>
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
     <div id="map"></div>
+
+    <div id="options">
+        <form>
+            <div class="radio-group">
+                <input type="radio" id="revenue" name="selector"><label id="rev" for="option-one">Revenue</label>
+                <input type="radio" id="popularity" name="selector"><label id="pop" for="option-three">Popularity</label>
+            </div>
+        </form>
+    </div>
+
+    <div id="info_window">
+        <h2>Name here</h2>
+    </div>
+
+
     <script>
+        var heatMapData = []
         function initMap() {
         // Styles a map in retro mode.
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -329,13 +412,11 @@
                 anchor: new google.maps.Point(0, 0) // anchor
             };
 
-            var heatMapData = []
 
             $.each(json_data, function(key, data) {
                 var latLng = new google.maps.LatLng(data.lat,data.lng);
 
                 heatMapData.push({location: latLng, weight: data.rating});
-               /*
 
                 var marker = new google.maps.Marker({
                     position: latLng,
@@ -343,20 +424,17 @@
                     icon: icon
                 });
 
-                var contentString = '<div id="content">'+
-                  '<div id="siteNotice">'+
-                  '</div>'+
-                  '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
+                var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
                   '<div id="bodyContent">'+
                   '<p>' + data.vicinity + '</p>'+
                   '</div>'+
                   '</div>';
                 marker.setMap(map);
                 marker.addListener('mouseover', function() {
-                    infowindow.setContent(contentString);
-                    infowindow.open(map, marker);
+                    //infowindow.setContent(contentString);
+                    //infowindow.open(map, marker);
+                    $('#info_window').html(contentString)
                 });
-                */
             });
 
             var heatmap = new google.maps.visualization.HeatmapLayer({
@@ -364,12 +442,22 @@
                   radius: 30
             });
             heatmap.setMap(map);
+
+            $( "#rev" ).click(function() {
+                heatMapData = [new google.maps.LatLng(59.907588,10.759842)];
+                heatmap.setMap(null);
+                heatmap = null;
+                heatmap = new google.maps.visualization.HeatmapLayer({
+                      data: heatMapData,
+                      radius: 30
+                });
+                heatmap.setMap(map);
+            });
         });
     }
 
-
-
     </script>
+
 
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzf03BUdj6dVlYBLRpntaJd4FIzu2ECTk&callback=initMap&libraries=visualization">
