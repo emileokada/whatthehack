@@ -17,6 +17,7 @@
             padding: 0;
         }
 
+
         #info_window {
             position: absolute;
             top: 50px;
@@ -35,7 +36,7 @@
             background: #4D4D4D;
             text-transform: uppercase;
             font-family: 'Open Sans Condensed', sans-serif;
-            color: #797979;
+            color: white;
             font-size: 18px;
             font-weight: 100;
             padding: 20px;
@@ -47,17 +48,17 @@
             top: -13px;
             right: 30px;
             font-family: 'Open Sans Condensed', arial, sans;
-            width: 250px;
+            width: 350px;
             background: transparent;
         }
 
-        input[type=radio] {
+        .radio-group input[type=radio] {
             position: absolute;
             visibility: hidden;
             display: none;
         }
 
-        label {
+        .radio-group label {
             color: black;
             display: inline-block;
             cursor: pointer;
@@ -71,7 +72,7 @@ input[type=radio]:checked + label{
             background: gray;
         }
 
-        label + input[type=radio] + label {
+        .radio-group label + input[type=radio] + label {
             border-left: solid 5 gray;
         }
         .radio-group {
@@ -92,7 +93,8 @@ input[type=radio]:checked + label{
     <div id="options">
         <form>
             <div class="radio-group">
-                <input type="radio" id="revenue" name="selector"><label id="rev" for="option-one">Revenue</label>
+                <input type="radio" id="markers" name="selector"><label id="marks" for="option-one">Markers</label>
+                <input type="radio" id="revenue" name="selector"><label id="rev" for="option-two">Revenue</label>
                 <input type="radio" id="popularity" name="selector"><label id="pop" for="option-three">Popularity</label>
             </div>
         </form>
@@ -413,19 +415,28 @@ input[type=radio]:checked + label{
 
             var heatMapDataRev = []
             var heatMapDataPop = []
+            var markers = [];
+
+            function setMapOnAll(map) {
+                for (var i = 0; i < markers.length; i++) {
+                    markers[i].setMap(map);
+                }
+            }
 
             $.each(json_data, function(key, data) {
                 var latLng = new google.maps.LatLng(data.lat,data.lng);
+                console.log(data.revenue);
 
                 heatMapDataRev.push({location: latLng, weight: data.revenue});
                 heatMapDataPop.push({location: latLng, weight: data.popularity});
 
-                /*
                 var marker = new google.maps.Marker({
                     position: latLng,
                     title: data.name,
                     icon: icon
                 });
+
+                markers.push(marker);
 
                 var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
                   '<div id="bodyContent">'+
@@ -433,32 +444,37 @@ input[type=radio]:checked + label{
                   '</div>'+
                   '</div>';
                 marker.setMap(map);
-                marker.addListener('mouseover', function() {
+                marker.addListener('click', function() {
                     //infowindow.setContent(contentString);
                     //infowindow.open(map, marker);
                     $('#info_window').html(contentString)
                 });
-                */
             });
 
             var heatmaprev = new google.maps.visualization.HeatmapLayer({
                   data: heatMapDataRev,
-                  radius: 30
+                  radius: 50
             });
 
             var heatmappop = new google.maps.visualization.HeatmapLayer({
                   data: heatMapDataPop,
-                  radius: 30
+                  radius: 50
             });
 
-            heatmaprev.setMap(map);
+            $( "#marks" ).click(function() {
+                heatmappop.setMap(null);
+                heatmaprev.setMap(null);
+                setMapOnAll(map);
+            });
 
             $( "#rev" ).click(function() {
+                setMapOnAll(null);
                 heatmappop.setMap(null);
                 heatmaprev.setMap(map);
             });
 
             $( "#pop" ).click(function() {
+                setMapOnAll(null);
                 heatmaprev.setMap(null);
                 heatmappop.setMap(map);
             });
