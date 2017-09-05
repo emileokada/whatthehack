@@ -416,8 +416,10 @@ input[type=radio]:checked + label{
             $.each(json_data, function(key, data) {
                 var latLng = new google.maps.LatLng(data.lat,data.lng);
 
-                heatMapData.push({location: latLng, weight: data.rating});
+                console.log(data.revenue)
+                heatMapData.push({location: latLng, weight: data.revenue});
 
+                /*
                 var marker = new google.maps.Marker({
                     position: latLng,
                     title: data.name,
@@ -435,6 +437,7 @@ input[type=radio]:checked + label{
                     //infowindow.open(map, marker);
                     $('#info_window').html(contentString)
                 });
+                */
             });
 
             var heatmap = new google.maps.visualization.HeatmapLayer({
