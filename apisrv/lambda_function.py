@@ -33,8 +33,14 @@ def respond(res, err=None):
     }
 
 def lambda_handler(event=None, context=None):
-    if 'httpMethod' in event and event['httpMethod'] == 'GET':
-        data_loc = os.getenv('DATA_ON_S3')
+    if event and 'httpMethod' in event and event['httpMethod'] == 'GET':
+        logger.info(event)
+        pathmap = json.loads(os.getenv('PATH_MAP', '{"/": "DATA_ON_S3"}'))
+        path = event.get('path', '/')
+        params = json.loads(event.get('queryStringParameters', '{}'))
+        if path not in pathmap:
+            return respond(None, 'Invalid path')
+        data_loc = os.getenv(pathmap[path])
         parsed_loc = urllib.parse.urlparse(data_loc)
         filename = os.path.basename(parsed_loc.path)
         local_path = os.path.join('/tmp', filename)

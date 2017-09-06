@@ -14,6 +14,7 @@ Resources:
       Policies: AmazonS3ReadOnlyAccess
       Environment:
         Variables:
+          PATH_MAP: '{"/": "DATA_ON_S3"}'
           DATA_ON_S3: !Ref DataLocation
       Events:
         GetScores:
