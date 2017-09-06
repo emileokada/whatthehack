@@ -108,7 +108,6 @@
     <div id="info_window">
     </div>
 
-
     <script>
         var dnb_key = ""
         function initMap() {
@@ -409,19 +408,6 @@
             ]
         });
 
-        function get_nearest_atm(latLng) {
-           var r_url = "https://dnbapistore.com/hackathon/banks/1.0/bank/atm/zip/0283"
-           $.ajax({
-               url:r_url,
-               method:"get",
-               beforeSend: function (xhr) {
-               xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
-               },
-               success: function (data) {console.log(data)}
-           });
-        }
-
-
         $.getJSON("https://9xdcpd2hf5.execute-api.eu-west-1.amazonaws.com/Stage/data/", function(json_data) {
             var infowindow = new google.maps.InfoWindow();
             var icon = {
@@ -509,7 +495,7 @@
                             url:r_url,
                             method:"get",
                             beforeSend: function (xhr) {
-                            xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
+                            xhr.setRequestHeader("Authorization", "Bearer 919f037f-4447-3507-bb87-6194b54877c5");
                             },
                             success: function (rates) {
                                 var price = Math.round(data.revenue/data.popularity);
