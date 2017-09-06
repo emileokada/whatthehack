@@ -408,21 +408,21 @@
               }
             ]
         });
-         function convert_currency() {
-            r_url = "https://dnbapistore.com/hackathon/currencies/1.0/currency/exchange?base=NOK" + "&date=2017-09-06";
-            $.ajax({
-                url:r_url,
-                method:"get",
-                beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
-                },
-                success: function (data) {console.log(data)}
-            });
-         }
 
-         convert_currency();
+        function get_nearest_atm(latLng) {
+           var r_url = "https://dnbapistore.com/hackathon/banks/1.0/bank/atm/zip/0283"
+           $.ajax({
+               url:r_url,
+               method:"get",
+               beforeSend: function (xhr) {
+               xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
+               },
+               success: function (data) {console.log(data)}
+           });
+        }
 
-        $.getJSON("https://9xdcpd2hf5.execute-api.eu-west-1.amazonaws.com/Stage/", function(json_data) {
+
+        $.getJSON("https://9xdcpd2hf5.execute-api.eu-west-1.amazonaws.com/Stage/data/", function(json_data) {
             var infowindow = new google.maps.InfoWindow();
             var icon = {
                 url: 'static/beer.png',
@@ -431,9 +431,17 @@
                 anchor: new google.maps.Point(0, 0) // anchor
             };
 
+            var atmicon = {
+                url: 'static/atm.png',
+                scaledSize: new google.maps.Size(32, 32), // scaled size
+                origin: new google.maps.Point(0,0), // origin
+                anchor: new google.maps.Point(0, 0) // anchor
+            };
+
             var heatMapDataRev = []
             var heatMapDataPop = []
             var markers = [];
+            var atmMarker = "";
 
             function setMapOnAll(map) {
                 for (var i = 0; i < markers.length; i++) {
@@ -441,25 +449,13 @@
                 }
             }
 
-            /*
-             function convert_currency(amount) {
-                r_url = "https://dnbapistore.com/hackathon/currencies/1.0/currency/exchange?base=NOK" + "&date=2017-09-06";
-                $.ajax({
-                    url:r_url,
-                    method:"get",
-                    beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
-                    },
-                    success: function (data) {console.log(data)}
-                });
-             }
-             */
 
             $.each(json_data, function(key, data) {
                 var latLng = new google.maps.LatLng(data.lat,data.lng);
 
                 heatMapDataRev.push({location: latLng, weight: data.revenue});
                 heatMapDataPop.push({location: latLng, weight: data.hipness});
+                //heatMapDataPop.push({location: latLng, weight: data.age_bucket==0 ? 1 : 0});
 
                 var marker = new google.maps.Marker({
                     position: latLng,
@@ -476,16 +472,66 @@
                     } else {
                         img_url = "http://www.menshealth.com/sites/menshealth.com/files/beer-main_0.jpg"
                     }
-                    var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
-                      '<div id="img_cont" style="max-height:200px;overflow:hidden;">'+
-                      '<img src="' + img_url + '" style="width:100%;height:auto;">'+
-                      '</div>'+
-                      '<div id="bodyContent">'+
-                      '<p><span style="font-weight: bold;">Address: </span>' + data.vicinity + '</p>'+
-                      '<p><span style="font-weight: bold;">Average beer price: </span>' + Math.round(data.revenue/data.popularity) + 'NOK</p>'+
-                      '</div>'+
-                      '</div>';
-                    $('#info_window').html(contentString)
+ 
+                    var r_url = "https://dnbapistore.com/hackathon/currencies/1.0/currency/exchange?base=NOK" + "&date=2017-09-06";
+                     if (data.age_bucket == 0) {
+                        var age_str = 'between 18 and 30.';
+                     } else if (data.age_bucket == 1) {
+                        var age_str = 'between 31 and 50.';
+                     } else if (data.age_bucket == 2) {
+                        var age_str = 'above 50.';
+                     }
+
+                    var atmName = "";
+                    var atmAddress = "";
+                    var atmLat = "";
+                    var atmLng = "";
+
+                    $.getJSON("https://9xdcpd2hf5.execute-api.eu-west-1.amazonaws.com/Stage/atm?lat=" + data.lat + "&lng=" + data.lng, function(json_data) {
+                        atmName = json_data.atmName; 
+                        atmAddress = json_data.atmAddress;
+                        atmLat = json_data.latitude; 
+                        atmLng = json_data.longitude; 
+                        var latLng = new google.maps.LatLng(atmLat,atmLng);
+
+                         if (atmMarker !== "") {
+                            atmMarker.setMap(null);
+                         }
+
+                        atmMarker = new google.maps.Marker({
+                            position: latLng,
+                            title: atmName,
+                            icon: atmicon
+                        });
+
+                        atmMarker.setMap(map);
+                    });
+
+
+                    $.ajax({
+                        url:r_url,
+                        method:"get",
+                        beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
+                        },
+                        success: function (rates) {
+                            var price = Math.round(data.revenue/data.popularity);
+                            var USD = Math.round(rates.rates.USD*price);
+                            var EUR = Math.round(rates.rates.EUR*price);
+                            var GBP= Math.round(rates.rates.GBP*price);
+                            var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
+                              '<div id="img_cont" style="max-height:200px;overflow:hidden;">'+
+                              '<img src="' + img_url + '" style="width:100%;height:auto;">'+
+                              '</div>'+
+                              '<div id="bodyContent">'+
+                              '<p><span style="font-weight: 900;">Address: </span>' + data.vicinity + '</p>'+
+                              '<p><span style="font-weight: 900;">Average beer price: </span>' + price + 'kr/ €' + EUR + ' / £' + GBP + ' / $' + USD + '</p>'+
+                              '<p><span style="font-weight: 900;">Popular </span> among people ' + age_str + '</p>'+
+                              '</div>'+
+                              '</div>';
+                            $('#info_window').html(contentString)
+                        }
+                    });
                 });
             });
 
