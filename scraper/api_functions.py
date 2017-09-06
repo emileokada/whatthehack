@@ -1,6 +1,7 @@
 import numpy as np
 import json
 import requests
+import datetime
 
 headers = {"Accept":"application/json","Authorization":"Bearer eaf16995-a77e-3654-a5a3-b29e985168e3"}
 
@@ -19,6 +20,10 @@ def format_date(date):
     month = add_zero(date.month)
     day = add_zero(date.day)
     return year + "-" + month + "-" + day
+
+def get_date(date_str):
+    year, month, day = date_str.split('-')
+    return datetime.datetime(int(year),int(month),int(day))
     
 def softmax(scores):
     scaled_scores = np.exp(scores - np.max(scores))

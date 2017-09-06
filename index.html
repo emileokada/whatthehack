@@ -110,6 +110,7 @@
 
 
     <script>
+        var dnb_key = ""
         function initMap() {
         // Styles a map in retro mode.
         var map = new google.maps.Map(document.getElementById('map'), {
@@ -407,6 +408,19 @@
               }
             ]
         });
+         function convert_currency() {
+            r_url = "https://dnbapistore.com/hackathon/currencies/1.0/currency/exchange?base=NOK" + "&date=2017-09-06";
+            $.ajax({
+                url:r_url,
+                method:"get",
+                beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
+                },
+                success: function (data) {console.log(data)}
+            });
+         }
+
+         convert_currency();
 
         $.getJSON("https://9xdcpd2hf5.execute-api.eu-west-1.amazonaws.com/Stage/", function(json_data) {
             var infowindow = new google.maps.InfoWindow();
@@ -426,6 +440,20 @@
                     markers[i].setMap(map);
                 }
             }
+
+            /*
+             function convert_currency(amount) {
+                r_url = "https://dnbapistore.com/hackathon/currencies/1.0/currency/exchange?base=NOK" + "&date=2017-09-06";
+                $.ajax({
+                    url:r_url,
+                    method:"get",
+                    beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
+                    },
+                    success: function (data) {console.log(data)}
+                });
+             }
+             */
 
             $.each(json_data, function(key, data) {
                 var latLng = new google.maps.LatLng(data.lat,data.lng);

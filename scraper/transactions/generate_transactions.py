@@ -42,14 +42,14 @@ def generate_random_transactions(number_of_transactions=1):
 
         if is_group_purchase:
             if choice == 'cheap':
-                amount = sum(np.maximum(100+40*np.random.randn(np.random.choice(range(20,30))),20))
+                amount = sum(np.maximum(80+40*np.random.randn(np.random.choice(range(20,30))),20))
             if choice == 'expensive':
-                amount = sum(np.maximum(280+40*np.random.randn(np.random.choice(range(20,30))),20))
+                amount = sum(np.maximum(150+40*np.random.randn(np.random.choice(range(20,30))),20))
         else:
             if choice == 'cheap':
-                amount = np.maximum(100+40*np.random.randn(),20)
+                amount = np.maximum(80+40*np.random.randn(),20)
             if choice == 'expensive':
-                amount = np.maximum(280+40*np.random.randn(),20)
+                amount = np.maximum(150+40*np.random.randn(),20)
 
         weekday = np.random.choice(7,p=weekday_likelihoods)
         date = np.random.choice(weekdays[weekday])
