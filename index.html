@@ -505,32 +505,31 @@
                         });
 
                         atmMarker.setMap(map);
-                    });
-
-
-                    $.ajax({
-                        url:r_url,
-                        method:"get",
-                        beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
-                        },
-                        success: function (rates) {
-                            var price = Math.round(data.revenue/data.popularity);
-                            var USD = Math.round(rates.rates.USD*price);
-                            var EUR = Math.round(rates.rates.EUR*price);
-                            var GBP= Math.round(rates.rates.GBP*price);
-                            var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
-                              '<div id="img_cont" style="max-height:200px;overflow:hidden;">'+
-                              '<img src="' + img_url + '" style="width:100%;height:auto;">'+
-                              '</div>'+
-                              '<div id="bodyContent">'+
-                              '<p><span style="font-weight: 900;">Address: </span>' + data.vicinity + '</p>'+
-                              '<p><span style="font-weight: 900;">Average beer price: </span>' + price + 'kr/ €' + EUR + ' / £' + GBP + ' / $' + USD + '</p>'+
-                              '<p><span style="font-weight: 900;">Popular </span> among people ' + age_str + '</p>'+
-                              '</div>'+
-                              '</div>';
-                            $('#info_window').html(contentString)
-                        }
+                        $.ajax({
+                            url:r_url,
+                            method:"get",
+                            beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Authorization", "Bearer eaf16995-a77e-3654-a5a3-b29e985168e3");
+                            },
+                            success: function (rates) {
+                                var price = Math.round(data.revenue/data.popularity);
+                                var USD = Math.round(rates.rates.USD*price);
+                                var EUR = Math.round(rates.rates.EUR*price);
+                                var GBP= Math.round(rates.rates.GBP*price);
+                                var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
+                                  '<div id="img_cont" style="max-height:200px;overflow:hidden;">'+
+                                  '<img src="' + img_url + '" style="width:100%;height:auto;">'+
+                                  '</div>'+
+                                  '<div id="bodyContent">'+
+                                  '<p><span style="font-weight: 900;">Address: </span>' + data.vicinity + '</p>'+
+                                  '<p><span style="font-weight: 900;">Average beer price: </span>' + price + 'kr/ €' + EUR + ' / £' + GBP + ' / $' + USD + '</p>'+
+                                  '<p><span style="font-weight: 900;">Popular </span> among people ' + age_str + '</p>'+
+                                  '<p><span style="font-weight: 900;">Nearest ATM</span> is at ' + atmAddress + '</p>'+
+                                  '</div>'+
+                                  '</div>';
+                                $('#info_window').html(contentString)
+                            }
+                        });
                     });
                 });
             });
@@ -546,29 +545,44 @@
             });
 
             $( "#marks" ).click(function() {
+                if ($("#marks").hasClass('clicked')){
+                    $("#marks").removeClass('clicked')
+                    setMapOnAll(null);
+                } else {
+                    $("#marks").addClass('clicked')
+                    setMapOnAll(map);
+                }
                 heatmappop.setMap(null);
                 heatmaprev.setMap(null);
-                setMapOnAll(map);
                 $("#rev").removeClass('clicked')
                 $("#pop").removeClass('clicked')
-                $("#marks").addClass('clicked')
             });
 
             $( "#rev" ).click(function() {
+                if ($("#rev").hasClass('clicked')){
+                    $("#rev").removeClass('clicked')
+                    heatmaprev.setMap(null);
+                } else {
+                    $("#rev").addClass('clicked')
+                    heatmaprev.setMap(map);
+                }
                 setMapOnAll(null);
                 heatmappop.setMap(null);
-                heatmaprev.setMap(map);
-                $("#rev").addClass('clicked')
                 $("#pop").removeClass('clicked')
                 $("#marks").removeClass('clicked')
             });
 
             $( "#pop" ).click(function() {
+                if ($("#pop").hasClass('clicked')){
+                    $("#pop").removeClass('clicked')
+                    heatmappop.setMap(null);
+                } else {
+                    $("#pop").addClass('clicked')
+                    heatmappop.setMap(map);
+                }
                 setMapOnAll(null);
                 heatmaprev.setMap(null);
-                heatmappop.setMap(map);
                 $("#rev").removeClass('clicked')
-                $("#pop").addClass('clicked')
                 $("#marks").removeClass('clicked')
             });
         });
