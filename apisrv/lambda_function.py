@@ -21,6 +21,23 @@ def filter_data(orig):
         rtv[k] = x
     return rtv
 
+def load_from_s3(data_loc):
+    parsed_loc = urllib.parse.urlparse(data_loc)
+    filename = os.path.basename(parsed_loc.path)
+    local_path = os.path.join('/tmp', filename)
+    if not os.path.exists(local_path):
+        if parsed_loc.scheme == 's3':
+            print('Copying from S3')
+            session = boto3.session.Session()
+            config = botocore.client.Config(signature_version='s3v4')
+            s3 = session.client('s3', config=config)
+            s3.download_file(parsed_loc.netloc, parsed_loc.path[1:], local_path)
+        else:
+            shutil.copyfile(data_loc, local_path)
+    with open(local_path, 'r') as fd:
+        data = json.load(fd)
+    return [filter_data(x) for x in data]
+
 def respond(res, err=None):
     return {
         'statusCode': '400' if err else '200',
@@ -35,27 +52,11 @@ def respond(res, err=None):
 def lambda_handler(event=None, context=None):
     if event and 'httpMethod' in event and event['httpMethod'] == 'GET':
         logger.info(event)
-        pathmap = json.loads(os.getenv('PATH_MAP', '{"/": "DATA_ON_S3"}'))
         path = event.get('path', '/')
-        params = json.loads(event.get('queryStringParameters', '{}'))
-        if path not in pathmap:
-            return respond(None, 'Invalid path')
-        data_loc = os.getenv(pathmap[path])
-        parsed_loc = urllib.parse.urlparse(data_loc)
-        filename = os.path.basename(parsed_loc.path)
-        local_path = os.path.join('/tmp', filename)
-        if not os.path.exists(local_path):
-            if parsed_loc.scheme == 's3':
-                print('Copying from S3')
-                session = boto3.session.Session()
-                config = botocore.client.Config(signature_version='s3v4')
-                s3 = session.client('s3', config=config)
-                s3.download_file(parsed_loc.netloc, parsed_loc.path[1:], local_path)
-            else:
-                shutil.copyfile(data_loc, local_path)
-        with open(local_path, 'r') as fd:
-            data = json.load(fd)
-        body = [filter_data(x) for x in data]
-        return respond(body)
+        params = event.get('queryStringParameters', {})
+
+        if path == '/':
+            return respond(load_from_s3(os.getenv('DATA_ON_S3')))
+        return respond(None, 'Invalid path')
     else:
         return respond(None, 'Invalid method')
