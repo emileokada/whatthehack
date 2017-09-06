@@ -1,12 +1,12 @@
+import json
+import logging
 import os
-import json
-import boto3
-import botocore
-import json
 import shutil
 import urllib
 import urllib.parse
-import logging
+
+import boto3
+import botocore
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ def filter_data(orig):
         rtv[k] = x
     return rtv
 
-def load_from_s3(data_loc):
+def load_from_s3(data_loc, process=True):
     parsed_loc = urllib.parse.urlparse(data_loc)
     filename = os.path.basename(parsed_loc.path)
     local_path = os.path.join('/tmp', filename)
@@ -36,7 +36,7 @@ def load_from_s3(data_loc):
             shutil.copyfile(data_loc, local_path)
     with open(local_path, 'r') as fd:
         data = json.load(fd)
-    return [filter_data(x) for x in data]
+    return [filter_data(x) if process else x for x in data]
 
 def respond(res, err=None):
     return {
@@ -49,12 +49,11 @@ def respond(res, err=None):
         'isBase64Encoded': False
     }
 
-def nearest_atm(slat,slng):
+def nearest_atm(fileloc, slat, slng):
     lat = float(slat)
     lng = float(slng)
-    atms = [{'atmAddress': 'Schweigaards gt.10','atmID': 'NOR51207','atmName': 'Vaterland, Grønland ATM','city': 'Oslo','country': 'Norway','currency': 'NOK,DKK (Døgnåpen)','latitude': 59.91168,'longitude': 10.758148,'zipCode': 190},{'atmAddress': 'Olafiagangen 5','atmID': 'NOR51132','atmName': 'Grønland ATM','city': 'Oslo','country': 'Norway','currency': 'NOK','latitude': 59.912839,'longitude': 10.759237,'zipCode': 188}]
-    nearest_atm = min(atms,key=lambda atm:(lat-atm['latitude'])**2+(lng-atm['longitude'])**2)
-    return nearest_atm
+    atms = load_from_s3(fileloc, process=False)
+    return min(atms, key=lambda atm: (lat-atm['latitude'])**2+(lng-atm['longitude'])**2)
 
 def lambda_handler(event=None, context=None):
     if event and 'httpMethod' in event and event['httpMethod'] == 'GET':
@@ -65,7 +64,7 @@ def lambda_handler(event=None, context=None):
         if path == '/data/':
             return respond(load_from_s3(os.getenv('DATA_ON_S3')))
         elif path == '/atm':
-            return respond(nearest_atm(params['lat'],params['lng']))
+            return respond(nearest_atm(os.getenv('ATM_ON_S3'), params['lat'], params['lng']))
         return respond(None, 'Invalid path')
     else:
         return respond(None, 'Invalid method')
