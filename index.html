@@ -31,6 +31,16 @@
             -webkit-box-shadow:  0px 0px 15px rgba(0, 0, 0, 0.22);
         }
 
+        #cross {
+            position: absolute;
+            top: -26px;
+            right: 0px;
+        }
+
+        #cross:hover {
+            cursor: pointer; 
+        }   
+
         #info_window h2{
             background: #4D4D4D;
             text-transform: uppercase;
@@ -459,7 +469,6 @@
                         img_url = "http://www.menshealth.com/sites/menshealth.com/files/beer-main_0.jpg"
                     }
  
-                    var r_url = "https://dnbapistore.com/hackathon/currencies/1.0/currency/exchange?base=NOK" + "&date=2017-09-06";
                      if (data.age_bucket == 0) {
                         var age_str = 'between 18 and 30.';
                      } else if (data.age_bucket == 1) {
@@ -491,6 +500,7 @@
                         });
 
                         atmMarker.setMap(map);
+                        var r_url = "https://dnbapistore.com/hackathon/currencies/1.0/currency/exchange?base=NOK" + "&date=2017-09-06";
                         $.ajax({
                             url:r_url,
                             method:"get",
@@ -503,6 +513,7 @@
                                 var EUR = Math.round(rates.rates.EUR*price);
                                 var GBP= Math.round(rates.rates.GBP*price);
                                 var contentString = '<h2 id="firstHeading" class="firstHeading">' + data.name +'</h2>'+
+                                '<div id="cross"><img id="cross_img" src="https://cdn3.iconfinder.com/data/icons/wysiwyg/80/icons-17-512.png" style="width:55px;"></div>'+
                                   '<div id="img_cont" style="max-height:200px;overflow:hidden;">'+
                                   '<img src="' + img_url + '" style="width:100%;height:auto;">'+
                                   '</div>'+
@@ -514,6 +525,10 @@
                                   '</div>'+
                                   '</div>';
                                 $('#info_window').html(contentString)
+                                $( "#cross" ).click(function() {
+                                    $("#info_window").html("");
+                                    console.log('yo');
+                                });
                             }
                         });
                     });

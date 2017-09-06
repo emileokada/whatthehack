@@ -52,7 +52,10 @@ for pub in pubs:
     pub['hipness'] = hipness 
     pub['age_bucket'] = age_bucket
     if 'photos' in pub:
-        pub['photos'] = pub['photos'][0]
+        if type(pub['photos']) == type([]):
+            pub['photos'] = pub['photos'][0]
+        else:
+            pub['photos'] = pub['photos']
     else:
         pub['photos'] = {}
 
