@@ -4,7 +4,7 @@ sys.path.insert(0, '/Users/emileokada/Documents/hackathon/scraper')
 import numpy as np
 import json
 import datetime
-from api_functions import format_int, make_transaction, softmax, format_date
+from api_functions import format_int, make_transaction, softmax, format_date, get_date
 
 #Likelihood of a purchase on a given weekday
 weekday_likelihoods = np.array([1,2,3,3,4,5,1],dtype=np.float32)
@@ -26,11 +26,22 @@ pub_scores = softmax([pub['rating'] if 'rating' in pub else 2.5 for pub in pubs]
 with open("../data/account_data.json") as f:
     customers = json.load(f)
 
+hip_places = [(59.910156, 10.726016),(59.922068, 10.759155),(59.913963, 10.751155)]
+age_buckets = [range(0,30),range(30,50),range(60,100)]
+
+scores_p = softmax([sum(1/(0.01+(la - pub['geometry']['location']['lat'])**2 + (ll-pub['geometry']['location']['lng'])**2) for la,ll in hip_places[:2]) for pub in pubs])
+scores = {pub['accountNumber']: 100*scores_p[i] for i,pub in enumerate(pubs)}
+
 def generate_random_transactions(number_of_transactions=1):
     transactions = []
     for i in range(number_of_transactions):
-        pub = np.random.choice(pubs)
         customer = np.random.choice(customers)
+        age = np.round((datetime.datetime.now() - get_date(customer['dateOfBirth'])).days/365).astype('int')
+
+        if age <= 30:
+            pub = np.random.choice(pubs,p=scores_p)
+        else: 
+            pub = np.random.choice(pubs)
 
         if 'rating' in pub:
             if pub['rating'] > 4:
